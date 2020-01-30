@@ -1,0 +1,84 @@
+---
+title: "Data Analysis Project"
+author: "Eric Newcomer, Rachel Jung, Joonwoo Bae, Will Huang"
+date: "1/29/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### Loading the data
+```{r, message=FALSE}
+library(dplyr)
+library(tidyverse)
+
+suicide <- read_csv("master.csv")
+
+```
+
+## Introduction
+Introduce your chosen dataset. Who created it, and how? What information does it contain? Provide some relevant summary information about some of the variables. This summary should include at least 2 plots.
+
+For our project, we chose to analyze suicide in the world using the 
+<a href="https://www.kaggle.com/russellyates88/suicide-rates-overview-1985-to-2016" target="_blank">Suicide Rates Overview 1985 to 2016</a> dataset. It was created by a Kaggle user who combined datasets (joining by time and place) from the United Nations Development Program, the World Bank, and the World Health Organization. The pulled-in data provides additional information about each country, including each country's
+<a href="http://hdr.undp.org/en/indicators/137506" target="_blank">human development index</a> and GDP statistics. Additionally, the dataset organizes suicide occurrences by year, sex, and age.
+
+```{r}
+
+suicide %>%
+  ggplot(aes(x = year, y = `suicides/100k pop`)) + 
+  geom_smooth(se=FALSE) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 5)) + 
+  ggtitle("Worldwide Suicide by Year")
+
+# reorder age groups to be chronological
+suicide$age <- factor(suicide$age, levels = c("5-14 years", "15-24 years", "25-34 years", "35-54 years", "55-74 years", "75+ years"))
+
+suicide %>%
+  ggplot(aes(x = age, y = `suicides/100k pop`)) + 
+  geom_bar(position="dodge", stat="identity") +
+  ggtitle("Worldwide Suicide by Age Group")
+
+
+```
+
+
+## Analysis (100 points): 
+Come up with at least three interesting insights into the dataset. Insights can be something like “The Northeast has more private colleges than the West” or “Cereals on the first shelf tend to be more sugary”. Support each of your insights with at least one plot, with appropriate summary calculations, and with a clear discussion.
+
+#### What country's suicide rate decreased the most since 1987?
+```{r}
+
+# get the average suicide rate in each country
+suicide %>%
+  filter(age == "5-14 years") %>%
+  group_by(country) %>%
+  summarise(avg = sum(suicides_no) / sum(population)) %>%
+  arrange(desc(avg))
+
+```
+
+## Style (60 points) 
+Your writeup should read like a fun article. Format your headers and text and chunks nicely, and don’t display any code or output that does not flow with your narrative. Make sure plots have clear labels and titles, make sure your discussion is in complete sentences. You should not say things like “I chose to do my project on this dataset” - pretend you are writing this article for Buzzfeed, not for class. Feel free to search around for fun ways to make R Markdown output even prettier!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
