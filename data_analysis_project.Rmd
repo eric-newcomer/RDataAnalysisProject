@@ -61,7 +61,51 @@ The above bar graph breaks down global suicides per 100k population by age group
 Come up with at least three interesting insights into the dataset. Insights can be something like “The Northeast has more private colleges than the West” or “Cereals on the first shelf tend to be more sugary”. Support each of your insights with at least one plot, with appropriate summary calculations, and with a clear discussion.
 
 ### Insight #1: Suicide Rates for Men and Women
-For our first insight, we wanted to see if the occurrence of suicide was similar or different for men and women. To do this, we grouped the data by sex and piped it into a ggplot bar graph.
+
+To start, one key insight found in the suicide dataset is that since 2000 in the United States, higher suicides rates are seen among males compared to female suicide rates, shown among every age range. In fact, United States males who were 75+ in the past 20 years have a mean of almost 37.57 suicides per 100,000 people each year compared to U.S. females, who had 3.85 suicides per 100,000 people each. This drastic difference lessens generally as the age groups become younger, but we can still see the stark differences in suicides rates between men and women below when we look at the summary calculations.
+
+```{r}
+suicide %>%
+  filter(country == "United States") %>%
+  filter(year > 2000) %>%
+  filter(sex == "male") %>%
+  group_by(age) %>%
+  summarize(suicide_per_100k = mean(`suicides/100k pop`)) %>%
+  arrange(order(age))
+
+suicide %>%
+  filter(country == "United States") %>%
+  filter(year > 2000) %>%
+  filter(sex == "female") %>%
+  group_by(age) %>%
+  summarize(suicide_per_100k = mean(`suicides/100k pop`)) %>%
+  arrange(order(age))
+
+```
+
+As we compare each age group’s suicides per 100,000 people, we can see that men and women have drastically differing numbers, only really becoming comparable when looking at the 5-14 age range. However, both genders appear to have very small suicides per 100,000 people for this age range, so it would not be reasonable to compare these numbers. However, we can compare how the distributions of suicides per 100,000 people differ among age groups between men and women. As U.S. men become older, there appears to be higher suicide percentages. However, we do not see this pattern in U.S. women. Women have the highest suicide percentages among the 35-54 age group, and then decreases as the age group becomes older. This suggests that for United States men, suicide percentages increase as they get older while suicide percentage is the highest for middle-aged United States women. 
+
+```{r}
+suicide %>%
+  filter(country == "United States") %>%
+  filter(year > 2000) %>%
+  filter(sex == "male") %>%
+  ggplot(aes(y = `suicides/100k pop`, x = age, fill = age)) +
+  geom_boxplot() +
+  ggtitle("Number of Suicides among Men per 100k in the United States since 2000")
+
+suicide %>%
+  filter(country == "United States") %>%
+  filter(year > 2000) %>%
+  filter(sex == "female") %>%
+  ggplot(aes(y = `suicides/100k pop`, x = age, fill = age)) +
+  geom_boxplot() +
+  ylim(0,40) +
+  ggtitle("Number of Suicides among Women per 100k in the United States since 2000")
+```
+
+
+To expand on this insight, we wanted to see if the occurrence of suicide was similar or different for men and women globally, from 1985 - 2016. To do this, we grouped the data by sex and piped it into a ggplot bar graph.
 
 ```{r}
 
@@ -79,7 +123,7 @@ suicide %>%
 
 ```
 
-From our data, we found that men commit suicide about **3.5 times more than women**. 
+As can be seen from our data, we found that men commit suicide about **3.5 times more than women** globally, showing that the disparity in suicides between men and women continues continues to occur outside of the United States.
 
 ### Insight #2: Suicide Rates among younger generation
 For our second insight, we wanted to determine which countries had the highest suicide rate (suicides per 100k population) among the younger generation, specifically those whose age is between 15 and 24 years.
