@@ -1,5 +1,5 @@
 ---
-title: "Data Analysis Project"
+title: "Gaining Insights on Global Suicide"
 author: "Eric Newcomer, Rachel Jung, Joonwoo Bae, Will Huang"
 date: "1/29/2020"
 output: html_document
@@ -7,62 +7,123 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-```
-
-#### Loading the data
-```{r, message=FALSE}
 library(dplyr)
 library(tidyverse)
-
 suicide <- read_csv("master.csv")
-
+# reorder age groups to be chronological
+suicide$age <- factor(suicide$age, levels = c("5-14 years", "15-24 years", "25-34 years", "35-54 years", "55-74 years", "75+ years"))
 ```
 
+
 ## Introduction
-Introduce your chosen dataset. Who created it, and how? What information does it contain? Provide some relevant summary information about some of the variables. This summary should include at least 2 plots.
 
 For our project, we chose to analyze suicide in the world using the 
 <a href="https://www.kaggle.com/russellyates88/suicide-rates-overview-1985-to-2016" target="_blank">Suicide Rates Overview 1985 to 2016</a> dataset. It was created by a Kaggle user who combined datasets (joining by time and place) from the United Nations Development Program, the World Bank, and the World Health Organization. The pulled-in data provides additional information about each country, including each country's
 <a href="http://hdr.undp.org/en/indicators/137506" target="_blank">human development index</a> and GDP statistics. Additionally, the dataset organizes suicide occurrences by year, sex, and age.
 
-```{r}
+```{r, message=FALSE}
+
+world_average <- (sum(suicide$suicides_no) / sum(suicide$population)) * 100000
+
 
 suicide %>%
-  ggplot(aes(x = year, y = `suicides/100k pop`)) + 
-  geom_smooth(se=FALSE) +
+  group_by(year) %>%
+  summarise(
+    sui_100k = (sum(suicides_no) / sum(population)) * 100000
+  ) %>%
+  ggplot(aes(x = year, y = sui_100k)) + 
+  geom_line() +
+  geom_hline(yintercept = mean(world_average), color="blue") +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 5)) + 
-  ggtitle("Worldwide Suicide by Year")
+  labs(title = "Worldwide Suicide by Year", x = "Year", y = "Suicides per 100k Population") 
+  
+```
 
-# reorder age groups to be chronological
-suicide$age <- factor(suicide$age, levels = c("5-14 years", "15-24 years", "25-34 years", "35-54 years", "55-74 years", "75+ years"))
 
+The above plot shows the mean global suicides per 100k population in every year from 1985 to 2016. From the plot, it can be seen that the average amount of suicides per 100k population is 13.1 deaths. It can also be seen that suicides reached a maximum of 15.3 deaths in 1995. Since 1995, there has been a general trend downward, showing that the averate amount of suicides per 100k population is decreasing globally.
+
+```{r, message=FALSE}
 suicide %>%
-  ggplot(aes(x = age, y = `suicides/100k pop`)) + 
+  group_by(age) %>%
+  summarise(
+    sui_100k = (sum(suicides_no) / sum(population)) * 100000
+  ) %>%
+  ggplot(aes(x = age, y = sui_100k)) + 
   geom_bar(position="dodge", stat="identity") +
-  ggtitle("Worldwide Suicide by Age Group")
+  labs(title = "Global Suicide by Age Group", x = "Age", y = "Suicides per 100k Population")
 
 
 ```
 
+The above bar graph breaks down global suicides per 100k population by age group. As can be seen in the plot, suicide rate increases as age increases. 
 
-## Analysis (100 points): 
+## Analysis 
 Come up with at least three interesting insights into the dataset. Insights can be something like “The Northeast has more private colleges than the West” or “Cereals on the first shelf tend to be more sugary”. Support each of your insights with at least one plot, with appropriate summary calculations, and with a clear discussion.
 
-#### What country's suicide rate decreased the most since 1987?
+### Insight #1: Suicide Rates for Men and Women
+For our first insight, we wanted to see if the occurrence of suicide was similar or different for men and women. To do this, we grouped the data by sex and piped it into a ggplot bar graph.
+
 ```{r}
 
-# get the average suicide rate in each country
+# Suicide, men vs women
 suicide %>%
-  filter(age == "5-14 years") %>%
-  group_by(country) %>%
-  summarise(avg = sum(suicides_no) / sum(population)) %>%
-  arrange(desc(avg))
+  group_by(sex) %>%
+  summarise(
+    sui_100k = (sum(suicides_no) / sum(population)) * 100000
+  ) %>%
+  ggplot(aes(x = sex, y = sui_100k, fill = sex)) + 
+  geom_bar(stat="identity") +
+  labs(title = "Worldwide Suicide by Sex", x = "Sex", y = "Suicides per 100k Population") +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 20))
+
 
 ```
 
-## Style (60 points) 
-Your writeup should read like a fun article. Format your headers and text and chunks nicely, and don’t display any code or output that does not flow with your narrative. Make sure plots have clear labels and titles, make sure your discussion is in complete sentences. You should not say things like “I chose to do my project on this dataset” - pretend you are writing this article for Buzzfeed, not for class. Feel free to search around for fun ways to make R Markdown output even prettier!
+From our data, we found that men commit suicide about **3.5 times more than women**. 
 
+### Insight #2: Suicide Rates among younger generation
+For our second insight, we wanted to determine which countries had the highest suicide rate (suicides per 100k population) among the younger generation, specifically those whose age is between 15 and 24 years.
+
+```{r, message=FALSE}
+
+# Highest suicide rates among 15-24 year olds
+suicide %>% 
+  filter(age == "15-24 years") %>%
+  group_by(country) %>%
+  summarize(
+    sui_100k= (sum(suicides_no) / sum(population)) * 100000
+  ) %>%
+  top_n(10) %>%
+  ggplot(aes(x = reorder(country, -sui_100k), y = sui_100k, fill = country)) + 
+  geom_bar(stat="identity") +
+  labs(title = "Countries with highest suicides among ages 15-24 per 100k", x = "Countries", y = "Suicides per 100k Population") +
+  theme(axis.text.x = element_text(angle=50, hjust=1))
+
+```
+
+From our graph, we see that Sri Lanka is the country with the highest suicide rate among 15-24 year olds, with just over 37 deaths per 100k population. 
+
+### Insight #3: Relationship between GDP and Suicide Rates
+For our third insight, we wanted to determine if a country's economic status had any influence on their suicide rate. Intuition would suggest that a richer country would have a lower rate of suicide. To challenge this intuition, we ____________________.
+
+```{r, message=FALSE}
+
+# Highest suicide rates among 15-24 year olds
+suicide %>% 
+  filter(age == "15-24 years") %>%
+  group_by(country) %>%
+  summarize(
+    sui_100k= (sum(suicides_no) / sum(population)) * 100000
+  ) %>%
+  top_n(10) %>%
+  ggplot(aes(x = reorder(country, -sui_100k), y = sui_100k, fill = country)) + 
+  geom_bar(stat="identity") +
+  labs(title = "Relationship between GDP and suicide (per 100k population)", x = "GDP per capita", y = "Suicides per 100k Population") +
+  theme(axis.text.x = element_text(angle=50, hjust=1))
+
+```
+
+From our graph, we see that there is a ______ relationship between a country's GDP and their suicide per 100k population. 
 
 
 
