@@ -12,6 +12,10 @@ library(tidyverse)
 suicide <- read_csv("master.csv")
 # reorder age groups to be chronological
 suicide$age <- factor(suicide$age, levels = c("5-14 years", "15-24 years", "25-34 years", "35-54 years", "55-74 years", "75+ years"))
+
+suicide <- suicide %>%
+  rename(gdp_for_year = `gdp_for_year ($)`, 
+         gdp_per_capita = `gdp_per_capita ($)`)
 ```
 
 
@@ -148,26 +152,27 @@ suicide %>%
 From our graph, we see that Sri Lanka is the country with the highest suicide rate among 15-24 year olds, with just over 37 deaths per 100k population. 
 
 ### Insight #3: Relationship between GDP and Suicide Rates
-For our third insight, we wanted to determine if a country's economic status had any influence on their suicide rate. Intuition would suggest that a richer country would have a lower rate of suicide. To challenge this intuition, we ____________________.
+For our third insight, we wanted to determine which countries had the lowest suicide rates. To investigate this, we grouped the dataset by country, calculated the suicide per capita, and took the lowest ten values.
 
 ```{r, message=FALSE}
 
-# Highest suicide rates among 15-24 year olds
+# Lowest suicide rates in the dataset
+
 suicide %>% 
-  filter(age == "15-24 years") %>%
   group_by(country) %>%
   summarize(
-    sui_100k= (sum(suicides_no) / sum(population)) * 100000
+    sui_100k= (sum(suicides_no) / sum(population)) * 100000,
   ) %>%
-  top_n(10) %>%
-  ggplot(aes(x = reorder(country, -sui_100k), y = sui_100k, fill = country)) + 
+  top_n(-10) %>%
+  ggplot(aes(x = reorder(country, sui_100k), y = sui_100k, fill = country)) +
   geom_bar(stat="identity") +
-  labs(title = "Relationship between GDP and suicide (per 100k population)", x = "GDP per capita", y = "Suicides per 100k Population") +
+  labs(title = "Countries with lowest suicides per 100k", x = "Country", y = "Suicides per 100k Population") +
   theme(axis.text.x = element_text(angle=50, hjust=1))
+
 
 ```
 
-From our graph, we see that there is a ______ relationship between a country's GDP and their suicide per 100k population. 
+From our graph, we see that Dominica and Saint Kitts and Nevis have the lowest suicide rates.
 
 
 
