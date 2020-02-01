@@ -13,17 +13,19 @@ suicide <- read_csv("master.csv")
 # reorder age groups to be chronological
 suicide$age <- factor(suicide$age, levels = c("5-14 years", "15-24 years", "25-34 years", "35-54 years", "55-74 years", "75+ years"))
 
-suicide <- suicide %>%
-  rename(gdp_for_year = `gdp_for_year ($)`, 
-         gdp_per_capita = `gdp_per_capita ($)`)
 ```
 
 
 ## Introduction
 
+Suicide is a very serious issue that impacts millions across the world. According to the NIH, suicide is among the leading causes of death in the United States (https://www.nimh.nih.gov/health/statistics/suicide.shtml) and each year in the world, approximately one million people die from suicide (https://www.befrienders.org/suicide-statistics).
+
+
 For our project, we chose to analyze suicide in the world using the 
 <a href="https://www.kaggle.com/russellyates88/suicide-rates-overview-1985-to-2016" target="_blank">Suicide Rates Overview 1985 to 2016</a> dataset. It was created by a Kaggle user who combined datasets (joining by time and place) from the United Nations Development Program, the World Bank, and the World Health Organization. The pulled-in data provides additional information about each country, including each country's
-<a href="http://hdr.undp.org/en/indicators/137506" target="_blank">human development index</a> and GDP statistics. Additionally, the dataset organizes suicide occurrences by year, sex, and age.
+<a href="http://hdr.undp.org/en/indicators/137506" target="_blank">human development index</a> and GDP statistics. Additionally, the dataset organizes suicide occurrences by year, sex, and age. 
+
+Through our data visualizations and other similiar analyses that focus on this data, we hope to spread awareness about the gravity of this issue and the enormous amount of lives that it affects, both directly and indirectly.
 
 ```{r, message=FALSE}
 
@@ -149,9 +151,9 @@ suicide %>%
 
 ```
 
-From our graph, we see that Sri Lanka is the country with the highest suicide rate among 15-24 year olds, with just over 37 deaths per 100k population. 
+From our graph, we see that Sri Lanka is the country with the highest suicide rate among 15-24 year olds, with just over 37 deaths per 100k population. Sri Lanka's suicide rate is significantly higher than the next highest suicide rate in Lithuania, by more than 10 deaths per 100k population. The rest of the countries are not as dissimilar. Knowing which countries have the highest suicide rate among a younger population is very important because it allows countries to take the appropriate steps and preventive measures to decrease the number of suicides among that population.
 
-### Insight #3: Relationship between GDP and Suicide Rates
+### Insight #3: Countries with Lowest Suicide Rates
 For our third insight, we wanted to determine which countries had the lowest suicide rates. To investigate this, we grouped the dataset by country, calculated the suicide per capita, and took the lowest ten values.
 
 ```{r, message=FALSE}
@@ -172,9 +174,10 @@ suicide %>%
 
 ```
 
-From our graph, we see that Dominica and Saint Kitts and Nevis have the lowest suicide rates.
+From our graph, we see that Dominica and Saint Kitts and Nevis have the lowest suicide rates. By focusing on  countries with the lowest suicide rates, we can study the lifestyles of their inhabitants and try to apply their preventative strategies in countries where the suicide rate is much higher. 
 
-
+## Conclusion
+Suicide is and still remains a major issue in our world today. Through this project, we were able to gain insights that help us better understand what countries and demographics are being affected the most. We hope that through more analyses that highlight the important insights from this dataset, we can learn more about who suicide affects and why it affects them, in order to implement better preventative measures to decrease the incidence of suicide throughout the world.
 
 
 
